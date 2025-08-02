@@ -1,24 +1,27 @@
+# Import necessary modules
 from datetime import datetime, timedelta
-from jose import JWTError, jwt
-from passlib.context import CryptContext
+from jose import JWTError, jwt # For encoding/decoding JWT
+from passlib.context import CryptContext # For password hashing ,transform the password into unreadable fixed string
 from fastapi import HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from database import SessionLocal
 import models, schemas
 
-# JWT config
+# Secret key to sign JWTs
 SECRET_KEY = "ef71d9d74d8c4c2ea14d5c26812c57d1e1bfe8cf2a7c4a55b59b88b2a34cda61"
+# Algorithm used for JWT
 ALGORITHM = "HS256"
+# Token expiry duration (in minutes)
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# Password hashing
+# Password hashing context using bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# OAuth2 token URL
+# OAuth2 Password Bearer expects token to be passed via `Authorization: Bearer <token>`
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-# DB dependency
+# Dependency to get the DB session for use in other functions
 def get_db():
     db = SessionLocal()
     try:
@@ -30,11 +33,11 @@ def get_db():
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-# Utility: verify password
+# Utility: verify password # Compare entered password with hashed one (during login)
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
-# Utility: generate token
+# Generate a signed JWT token
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))

@@ -42,10 +42,4 @@ def create_user(db: Session, user: schemas.UserCreate, hashed_password: str):
     db.refresh(db_user)
     return db_user
 
-def create_pizza(db: Session, pizza: schemas.PizzaCreate):
-    db_pizza = models.Pizza(**pizza.dict())
-    db.add(db_pizza)
-    db.commit()
-    db.refresh(db_pizza)
-    return db_pizza
 

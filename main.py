@@ -1,4 +1,3 @@
-from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
 import models, schemas, crud
@@ -21,9 +20,10 @@ from auth import (
 
 models.Base.metadata.create_all(bind=engine)
 
+#This starts your FastAPI application. Everything after this adds routes to it.
 app = FastAPI()
 
-# Register
+# Registers a new user, hashes the password, stores in DB.
 @app.post("/register", response_model=schemas.User)
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if crud.get_user_by_username(db, user.username):
@@ -31,7 +31,7 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     hashed_pw = get_password_hash(user.password)
     return crud.create_user(db, user, hashed_pw)
 
-# Login
+#  Verifies login and returns a JWT token if correct.
 @app.post("/login", response_model=schemas.Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = crud.get_user_by_username(db, form_data.username)
@@ -40,7 +40,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     token = create_access_token(data={"sub": user.username})
     return {"access_token": token, "token_type": "bearer"}
 
-# Secure route example
+# Returns info about the user based on the token.
 @app.get("/me", response_model=schemas.User)
 def read_current_user(current_user: schemas.User = Depends(get_current_user)):
     return current_user
