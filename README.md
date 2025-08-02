@@ -45,3 +45,15 @@ Run the API
 
 uvicorn main:app --reload
 
+Steps
+
+touch main.py models.py database.py requirements.txt
+python -m venv virtual
+source virtual/Scripts/activate
+pip install fastapi uvicorn
+pip freeze > requirements.txt
+uvicorn main:app --reload
+pip install sqlalchemy databases asyncpg
+pip install python-jose[cryptography] passlib[bcrypt] python-multipart
+
+
